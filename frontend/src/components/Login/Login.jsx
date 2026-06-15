@@ -5,9 +5,12 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { loadUser } from "../../redux/actions/user";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
@@ -15,17 +18,17 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
+      await axios.post(
         `${server}/user/login-user`,
         { email, password },
         { withCredentials: true }
       );
       toast.success("Login Success!");
+      dispatch(loadUser());
       navigate("/");
-      window.location.reload(true);
     } catch (err) {
       console.error('Login error:', err);
-      toast.error(err.message || 'Login failed. Please try again.');
+      toast.error(err.response?.data?.message || err.message || 'Login failed. Please try again.');
     }
   };
 

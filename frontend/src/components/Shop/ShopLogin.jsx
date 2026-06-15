@@ -5,9 +5,12 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { loadSeller } from "../../redux/actions/user";
 
 const ShopLogin = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
@@ -26,11 +29,11 @@ const ShopLogin = () => {
       )
       .then((res) => {
         toast.success("Login Success!");
+        dispatch(loadSeller());
         navigate("/dashboard");
-        window.location.reload(true); 
       })
       .catch((err) => {
-        toast.error(err.response.data.message);
+        toast.error(err.response?.data?.message || err.message);
       });
   };
 
