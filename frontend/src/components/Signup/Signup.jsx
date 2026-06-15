@@ -29,6 +29,11 @@ const Singup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!avatar) {
+      toast.error("Please upload an avatar image!");
+      return;
+    }
+
     axios
       .post(`${server}/user/create-user`, { name, email, password, avatar })
       .then((res) => {
