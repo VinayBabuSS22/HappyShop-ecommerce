@@ -41,6 +41,10 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
 
     const activationUrl = `http://localhost:3000/seller/activation/${activationToken}`;
 
+    console.log("====================================================");
+    console.log("SELLER ACTIVATION URL (DEV MODE):", activationUrl);
+    console.log("====================================================");
+
     try {
       await sendMail({
         email: seller.email,
@@ -52,7 +56,12 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
         message: `please check your email:- ${seller.email} to activate your shop!`,
       });
     } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
+      console.error("Email sending failed. Falling back to direct URL in dev mode:", error.message);
+      res.status(201).json({
+        success: true,
+        message: `[Dev Mode] Email failed but you can activate here: ${activationUrl}`,
+        activationUrl
+      });
     }
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));
