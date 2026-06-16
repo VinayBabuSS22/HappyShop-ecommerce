@@ -18,23 +18,27 @@ const ShopLogin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await axios
-      .post(
+    try {
+      await axios.post(
         `${server}/shop/login-shop`,
         {
           email,
           password,
         },
         { withCredentials: true }
-      )
-      .then((res) => {
-        toast.success("Login Success!");
-        dispatch(loadSeller());
-        navigate("/dashboard");
-      })
-      .catch((err) => {
-        toast.error(err.response?.data?.message || err.message);
-      });
+      );
+      await dispatch(loadSeller());
+      toast.success("Login Success!");
+      navigate("/dashboard");
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        (err.message === "Network Error"
+          ? "Cannot connect to server. Please ensure the backend is running on port 8000."
+          : err.message) ||
+        "Login failed. Please try again.";
+      toast.error(message);
+    }
   };
 
   return (

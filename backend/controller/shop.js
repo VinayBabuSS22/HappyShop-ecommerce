@@ -9,6 +9,7 @@ const cloudinary = require("cloudinary");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ErrorHandler = require("../utils/ErrorHandler");
 const sendShopToken = require("../utils/shopToken");
+const getCookieOptions = require("../utils/cookieOptions");
 
 // create shop
 router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
@@ -176,10 +177,8 @@ router.get(
   catchAsyncErrors(async (req, res, next) => {
     try {
       res.cookie("seller_token", null, {
+        ...getCookieOptions(),
         expires: new Date(Date.now()),
-        httpOnly: true,
-        sameSite: "none",
-        secure: true,
       });
       res.status(201).json({
         success: true,

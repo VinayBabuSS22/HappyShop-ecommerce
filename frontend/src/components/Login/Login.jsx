@@ -1,7 +1,7 @@
-import { React, useState } from "react";
+import { React, useEffect, useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import styles from "../../styles/styles";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
@@ -10,25 +10,53 @@ import { loadUser } from "../../redux/actions/user";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.fromSignup && location.state?.message) {
+      toast.success(location.state.message);
+      if (location.state.activationUrl) {
+        toast.info(
+          "Email delivery failed in dev mode. Check the backend console for your activation link."
+        );
+      }
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
+
+  const getErrorMessage = (err) => {
+    if (err.response?.data?.message) {
+      return err.response.data.message;
+    }
+    if (err.message === "Network Error") {
+      return "Cannot connect to server. Please ensure the backend is running on port 8000.";
+    }
+    return err.message || "Login failed. Please try again.";
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
       await axios.post(
         `${server}/user/login-user`,
         { email, password },
         { withCredentials: true }
       );
+      await dispatch(loadUser());
       toast.success("Login Success!");
-      dispatch(loadUser());
       navigate("/");
     } catch (err) {
-      console.error('Login error:', err);
-      toast.error(err.response?.data?.message || err.message || 'Login failed. Please try again.');
+      console.error("Login error:", err);
+      toast.error(getErrorMessage(err));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,6 +66,11 @@ const Login = () => {
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Login to your account
         </h2>
+        {location.state?.fromSignup && (
+          <p className="mt-2 text-center text-sm text-gray-600">
+            After signing up, activate your account via the email link before logging in.
+          </p>
+        )}
       </div>
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
@@ -108,21 +141,14 @@ const Login = () => {
                   Remember me
                 </label>
               </div>
-              <div className="text-sm">
-                <a
-                  href=".forgot-password"
-                  className="font-medium text-blue-600 hover:text-blue-500"
-                >
-                  Forgot your password?
-                </a>
-              </div>
             </div>
             <div>
               <button
                 type="submit"
-                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                disabled={loading}
+                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Submit
+                {loading ? "Signing in..." : "Submit"}
               </button>
             </div>
             <div className={`${styles.noramlFlex} w-full`}>

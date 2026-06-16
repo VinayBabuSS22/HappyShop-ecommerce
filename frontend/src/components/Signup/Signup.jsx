@@ -1,18 +1,20 @@
 import { React, useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import styles from "../../styles/styles";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { RxAvatar } from "react-icons/rx";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
 
 const Singup = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
   const [avatar, setAvatar] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleFileInputChange = (e) => {
     const reader = new FileReader();
@@ -34,18 +36,40 @@ const Singup = () => {
       return;
     }
 
-    axios
-      .post(`${server}/user/create-user`, { name, email, password, avatar })
-      .then((res) => {
-        toast.success(res.data.message);
-        setName("");
-        setEmail("");
-        setPassword("");
-        setAvatar();
-      })
-      .catch((error) => {
-        toast.error(error.response.data.message);
+    setLoading(true);
+
+    try {
+      const res = await axios.post(`${server}/user/create-user`, {
+        name,
+        email,
+        password,
+        avatar,
       });
+
+      toast.success(res.data.message);
+
+      if (res.data.activationUrl) {
+        toast.info("Check the backend console or use the activation link from the response.");
+      }
+
+      navigate("/login", {
+        state: {
+          fromSignup: true,
+          message: res.data.message,
+          activationUrl: res.data.activationUrl,
+        },
+      });
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        (error.message === "Network Error"
+          ? "Cannot connect to server. Please ensure the backend is running."
+          : error.message) ||
+        "Signup failed. Please try again.";
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -168,9 +192,10 @@ const Singup = () => {
             <div>
               <button
                 type="submit"
-                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                disabled={loading}
+                className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Submit
+                {loading ? "Submitting..." : "Submit"}
               </button>
             </div>
             <div className={`${styles.noramlFlex} w-full`}>
