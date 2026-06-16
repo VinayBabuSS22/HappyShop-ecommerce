@@ -7,6 +7,7 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
+const getCookieOptions = require("../utils/cookieOptions");
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
 
 // create user
@@ -166,12 +167,11 @@ router.get(
   "/logout",
   catchAsyncErrors(async (req, res, next) => {
     try {
-      res.cookie("token", null, {
-        expires: new Date(Date.now()),
-        httpOnly: true,
-        sameSite: "none",
-        secure: true,
-      });
+      res.cookie(
+        "token",
+        null,
+        getCookieOptions({ expires: new Date(Date.now()) })
+      );
       res.status(201).json({
         success: true,
         message: "Log out successful!",
