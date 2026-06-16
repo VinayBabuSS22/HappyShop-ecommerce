@@ -4,7 +4,12 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+const io = socketIO(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  },
+});
 
 require("dotenv").config({
   path: "./.env",

@@ -5,23 +5,17 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (
-      !origin ||
-      process.env.NODE_ENV === "PRODUCTION" ||
-      origin.startsWith("http://localhost:") ||
-      origin.startsWith("http://127.0.0.1:")
-    ) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: [
+      process.env.FRONTEND_URL,
+      "http://localhost:3000",
+    ],
+    credentials: true,
+  })
+);
 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 app.use("/test", (req, res) => {
   res.send("Hello world!");
