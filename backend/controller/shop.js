@@ -9,6 +9,8 @@ const cloudinary = require("cloudinary");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ErrorHandler = require("../utils/ErrorHandler");
 const sendShopToken = require("../utils/shopToken");
+const getCookieOptions = require("../utils/cookieOptions");
+const uploadAvatar = require("../utils/uploadAvatar");
 
 // create shop
 router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
@@ -19,19 +21,17 @@ router.post("/create-shop", catchAsyncErrors(async (req, res, next) => {
       return next(new ErrorHandler("User already exists", 400));
     }
 
-    const myCloud = await cloudinary.v2.uploader.upload(req.body.avatar, {
-      folder: "avatars",
-    });
+    if (!req.body.avatar) {
+      return next(new ErrorHandler("Please upload an avatar image", 400));
+    }
 
+    const avatarData = await uploadAvatar(req.body.avatar);
 
     const seller = {
       name: req.body.name,
       email: email,
       password: req.body.password,
-      avatar: {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      },
+      avatar: avatarData,
       address: req.body.address,
       phoneNumber: req.body.phoneNumber,
       zipCode: req.body.zipCode,
@@ -176,10 +176,8 @@ router.get(
   catchAsyncErrors(async (req, res, next) => {
     try {
       res.cookie("seller_token", null, {
+        ...getCookieOptions(),
         expires: new Date(Date.now()),
-        httpOnly: true,
-        sameSite: "none",
-        secure: true,
       });
       res.status(201).json({
         success: true,

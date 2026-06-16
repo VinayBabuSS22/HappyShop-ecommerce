@@ -68,7 +68,7 @@ const AllCoupons = () => {
        window.location.reload();
       })
       .catch((error) => {
-        toast.error(error.response.data.message);
+        toast.error(error.response?.data?.message || error.message);
       });
   };
 

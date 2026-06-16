@@ -119,9 +119,9 @@
    SMTP_PORT=465
    SMTP_MAIL=your_email@gmail.com
    SMTP_PASSWORD=your_email_app_password
-   CLOUD_NAME=your_cloudinary_name
-   CLOUD_API_KEY=your_cloudinary_api_key
-   CLOUD_API_SECRET=your_cloudinary_api_secret
+   CLOUDINARY_NAME=your_cloudinary_name
+   CLOUDINARY_API_KEY=your_cloudinary_api_key
+   CLOUDINARY_API_SECRET=your_cloudinary_api_secret
    STRIPE_API_KEY=your_stripe_publishable_key
    STRIPE_SECRET_KEY=your_stripe_secret_key
    ```

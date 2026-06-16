@@ -1,9 +1,18 @@
 import { createReducer } from "@reduxjs/toolkit";
 
+const getStoredCart = () => {
+  try {
+    const stored = localStorage.getItem("cartItems");
+    const parsed = stored ? JSON.parse(stored) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    localStorage.removeItem("cartItems");
+    return [];
+  }
+};
+
 const initialState = {
-  cart: localStorage.getItem("cartItems")
-    ? JSON.parse(localStorage.getItem("cartItems"))
-    : [],
+  cart: getStoredCart(),
 };
 
 export const cartReducer = createReducer(initialState, {

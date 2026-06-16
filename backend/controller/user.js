@@ -7,6 +7,8 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
+const getCookieOptions = require("../utils/cookieOptions");
+const uploadAvatar = require("../utils/uploadAvatar");
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
 
 // create user
@@ -19,18 +21,17 @@ router.post("/create-user", async (req, res, next) => {
       return next(new ErrorHandler("User already exists", 400));
     }
 
-    const myCloud = await cloudinary.v2.uploader.upload(avatar, {
-      folder: "avatars",
-    });
+    if (!avatar) {
+      return next(new ErrorHandler("Please upload an avatar image", 400));
+    }
+
+    const avatarData = await uploadAvatar(avatar);
 
     const user = {
       name: name,
       email: email,
       password: password,
-      avatar: {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      },
+      avatar: avatarData,
     };
 
     const activationToken = createActivationToken(user);
@@ -167,10 +168,8 @@ router.get(
   catchAsyncErrors(async (req, res, next) => {
     try {
       res.cookie("token", null, {
+        ...getCookieOptions(),
         expires: new Date(Date.now()),
-        httpOnly: true,
-        sameSite: "none",
-        secure: true,
       });
       res.status(201).json({
         success: true,
