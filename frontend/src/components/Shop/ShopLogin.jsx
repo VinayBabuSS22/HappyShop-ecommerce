@@ -1,7 +1,7 @@
 import { React, useEffect, useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import styles from "../../styles/styles";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { server } from "../../server";
 import { toast } from "react-toastify";
@@ -10,10 +10,29 @@ import { loadSeller } from "../../redux/actions/user";
 
 const ShopLogin = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.fromSignup && location.state?.message) {
+      toast.success(location.state.message);
+      if (location.state.activationUrl) {
+        toast.info(
+          <div>
+            Email delivery failed. Click here to activate your shop:{" "}
+            <a href={location.state.activationUrl} className="underline font-bold text-blue-200">
+              Activate Shop
+            </a>
+          </div>,
+          { autoClose: false }
+        );
+      }
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -45,6 +45,7 @@ const ShopCreate = () => {
         state: {
           fromSignup: true,
           message: res.data.message,
+          activationUrl: res.data.activationUrl,
         },
       });
     } catch (error) {

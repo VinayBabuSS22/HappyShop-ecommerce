@@ -22,7 +22,13 @@ const Login = () => {
       toast.success(location.state.message);
       if (location.state.activationUrl) {
         toast.info(
-          "Email delivery failed in dev mode. Check the backend console for your activation link."
+          <div>
+            Email delivery failed. Click here to activate:{" "}
+            <a href={location.state.activationUrl} className="underline font-bold text-blue-200">
+              Activate Account
+            </a>
+          </div>,
+          { autoClose: false }
         );
       }
       navigate(location.pathname, { replace: true, state: {} });
