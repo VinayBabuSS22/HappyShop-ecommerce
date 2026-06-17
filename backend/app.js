@@ -5,6 +5,16 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
+// Clean up surrounding quotes from process.env variables (common on Render/hosting services)
+for (const key in process.env) {
+  const val = process.env[key];
+  if (typeof val === "string") {
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      process.env[key] = val.slice(1, -1);
+    }
+  }
+}
+
 // Trust reverse proxy for secure cookies on Render
 app.set("trust proxy", 1);
 
