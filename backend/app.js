@@ -5,6 +5,9 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
+// Trust reverse proxy for secure cookies on Render
+app.set("trust proxy", 1);
+
 app.use(
   cors({
     origin: [
@@ -15,7 +18,7 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "50mb" }));
 app.use(cookieParser());
 app.use("/test", (req, res) => {
   res.send("Hello world!");
@@ -24,7 +27,7 @@ app.use("/test", (req, res) => {
 app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
 
 // config
-if (process.env.NODE_ENV !== "PRODUCTION") {
+if (process.env.NODE_ENV !== "PRODUCTION" && process.env.NODE_ENV !== "production") {
   require("dotenv").config({
     path: "config/.env",
   });
