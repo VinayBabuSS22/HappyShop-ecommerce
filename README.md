@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./banner.png" alt="HappyShop Banner" width="100%" />
+<img src="frontend/build/logo.png" alt="HappyShop Banner" width="100%" />
 
 <br />
 <br />
